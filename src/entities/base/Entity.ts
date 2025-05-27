@@ -6,6 +6,7 @@ export abstract class Entity extends Phaser.Physics.Arcade.Sprite {
     protected isInvulnerable: boolean = false;
     protected isDead: boolean = false;
     protected isAttacking: boolean = false;
+    protected canFly: boolean = false;
     
     protected invulnerabilityTime: number;
     protected attackCooldown: number;
@@ -21,18 +22,31 @@ export abstract class Entity extends Phaser.Physics.Arcade.Sprite {
         // Inicializar la entidad solo si la escena está lista
         if (config.scene.sys.settings.active) {
             this.initializeEntity(config);
-            this.initializePhysics();
+            this.initializePhysics(config.canFly);
             this.initializeStats();
             this.initializeCombat(combatConfig);
             this.initializeHealthBar(healthBarConfig);
         } else {
             config.scene.events.once('create', () => {
                 this.initializeEntity(config);
-                this.initializePhysics();
+                this.initializePhysics(config.canFly);
                 this.initializeStats();
                 this.initializeCombat(combatConfig);
                 this.initializeHealthBar(healthBarConfig);
             });
+        }
+    }
+
+    private initializePhysics(canFly: boolean = false): void {
+        this.canFly = canFly;
+        this.setCollideWorldBounds(true);
+        this.setBounce(0.1);
+        
+        // Solo aplicar gravedad si la entidad no puede volar
+        if (!this.canFly) {
+            this.setGravityY(1200);
+        } else {
+            this.setGravityY(0);
         }
     }
 
@@ -42,12 +56,6 @@ export abstract class Entity extends Phaser.Physics.Arcade.Sprite {
         this.setDepth(config.depth ?? 1);
         this.setSize(config.size?.width ?? 32, config.size?.height ?? 32);
         this.setScale(config.scale ?? 1);
-    }
-
-    private initializePhysics(): void {
-        this.setCollideWorldBounds(true);
-        this.setBounce(0.1);
-        this.setGravityY(1200);
     }
 
     protected initializeStats(): void {
@@ -129,6 +137,11 @@ export abstract class Entity extends Phaser.Physics.Arcade.Sprite {
         // Actualizar la barra de vida si existe
         if (this.healthBar) {
             this.healthBar.draw();
+        }
+
+        // Si la entidad puede volar, asegurarse de que no caiga
+        if (this.canFly) {
+            this.setGravityY(0);
         }
     }
 

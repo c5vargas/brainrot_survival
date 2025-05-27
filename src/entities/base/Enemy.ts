@@ -9,6 +9,7 @@ export interface EnemyConfig extends EntityConfig {
     target: Player;
     detectionRange?: number;
     attackRange?: number;
+    canFly?: boolean; // Añadir esta propiedad
 }
 
 export abstract class Enemy extends Entity {
@@ -21,6 +22,7 @@ export abstract class Enemy extends Entity {
         this.target = config.target;
         this.detectionRange = config.detectionRange ?? 200;
         this.attackRange = config.attackRange ?? 50;
+        this.canFly = config.canFly ?? false;
     }
 
     protected moveTowardsTarget(): void {
@@ -31,6 +33,15 @@ export abstract class Enemy extends Entity {
             this.target.x, this.target.y
         );
     
+        // Verificar si el objetivo es alcanzable
+        const verticalDistance = Math.abs(this.target.y - this.y);
+        const isTargetReachable = this.canFly || verticalDistance <= 150;
+
+        if (!isTargetReachable) {
+            this.setVelocity(0);
+            return;
+        }
+
         if (distance <= this.attackRange) {
             this.setVelocity(0);
         } else if (distance <= this.detectionRange) {
@@ -42,8 +53,31 @@ export abstract class Enemy extends Entity {
 
     private moveToPosition(x: number, y: number): void {
         const angle = Phaser.Math.Angle.Between(this.x, this.y, x, y);
-        this.setVelocityX(Math.cos(angle) * this.stats.speed);
-        this.setVelocityY(Math.sin(angle) * this.stats.speed);
+        
+        // Si el enemigo está muy lejos verticalmente y no puede volar, dejar de perseguir
+        if (!this.canFly && Math.abs(y - this.y) > 150) {
+            this.setVelocity(0);
+            return;
+        }
+        
+        // Movimiento horizontal
+        const targetSpeedX = Math.cos(angle) * this.stats.speed;
+        this.setVelocityX(targetSpeedX);
+        
+        // Manejo del movimiento vertical
+        if (this.canFly) {
+            // Los enemigos voladores pueden moverse libremente en vertical
+            this.setVelocityY(Math.sin(angle) * this.stats.speed);
+        } else {
+            // Enemigos terrestres solo pueden saltar
+            if (this.body?.blocked.down) {
+                // Solo saltar si el objetivo está más alto y alcanzable
+                if (y < this.y - 32 && Math.abs(x - this.x) < 100) {
+                    this.setVelocityY(-400);
+                }
+            }
+        }
+
         this.setFlipX(x < this.x);
     }
 

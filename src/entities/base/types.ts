@@ -12,9 +12,13 @@ export interface EntityConfig {
     y: number;
     texture: string;
     frame?: string | number;
-    size?: { width: number; height: number };
-    scale?: number;
     depth?: number;
+    scale?: number;
+    size?: {
+        width: number;
+        height: number;
+    };
+    canFly?: boolean;
 }
 
 export interface CombatConfig {

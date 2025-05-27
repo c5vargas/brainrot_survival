@@ -13,7 +13,8 @@ export class Skeleton extends Enemy {
             texture: 'skeleton_idle',
             scale: 2,
             detectionRange: 250,
-            attackRange: 45
+            attackRange: 45,
+            canFly: false
         }, combatConfig);
 
         this.createAnimations();

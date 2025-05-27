@@ -25,7 +25,8 @@ export class EnemyManager {
                     x: spawnPoint.x,
                     y: spawnPoint.y,
                     target: this.player,
-                    texture: 'skeleton_idle'
+                    texture: 'skeleton_idle',
+                    canFly: false
                 });
                 break;
             // Añadir más tipos de enemigos aquí
