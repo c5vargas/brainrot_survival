@@ -125,9 +125,6 @@ export abstract class Entity extends Phaser.Physics.Arcade.Sprite {
         this.setAlpha(0.5);
     }
 
-    protected showDamageText(amount: number): void {
-        // Este método será implementado por las clases hijas
-    }
 
     public getIsInvulnerable(): boolean {
         return this.isInvulnerable;
@@ -148,4 +145,6 @@ export abstract class Entity extends Phaser.Physics.Arcade.Sprite {
     protected abstract onDamageEffect(): void;
     protected abstract attack(): void;
     protected abstract createAnimations(): void;
+    protected abstract showDamageText(_amount: number): void
+
 }
