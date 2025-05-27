@@ -14,7 +14,6 @@ export interface PlayerStats extends EntityStats {
 
 export interface PlayerConfig extends EntityConfig {
     baseJumpForce?: number;
-    dashSpeed?: number;
 }
 
 export class Player extends Entity {
@@ -23,10 +22,9 @@ export class Player extends Entity {
     private attackKey: Phaser.Input.Keyboard.Key;
     
     // Movement properties
+    private readonly attackSpeed: number = 0.5;
     private canDoubleJump: boolean = false;
     private baseJumpForce: number;
-    private isDashing: boolean = false;
-    private dashSpeed: number;
 
     constructor(scene: Scene, x: number, y: number) {
         const config: PlayerConfig = {
@@ -37,7 +35,6 @@ export class Player extends Entity {
             scale: 2.5,
             size: { width: 32, height: 32 },
             baseJumpForce: -400,
-            dashSpeed: 180
         };
 
         const combatConfig: CombatConfig = {
@@ -53,7 +50,6 @@ export class Player extends Entity {
         super(config, combatConfig, healthBarConfig);
         
         this.baseJumpForce = config.baseJumpForce ?? -400;
-        this.dashSpeed = config.dashSpeed ?? 180;
         
         this.initializeControls();
         this.initializePlayerStats();
@@ -144,12 +140,8 @@ export class Player extends Entity {
         // Detectar enemigos en rango y aplicar daño
         this.detectAndDamageEnemies();
     
-        this.handleDashAttack();
-    
         this.scene.time.delayedCall(this.attackCooldown, () => {
             this.isAttacking = false;
-            this.isDashing = false;
-            this.setVelocityX(0);
         });
     }
 
@@ -184,15 +176,6 @@ export class Player extends Entity {
         });
     }
 
-    private handleDashAttack(): void {
-        this.isDashing = this.cursors.down.isDown;
-        
-        if (this.isDashing) {
-            const direction = this.flipX ? -1 : 1;
-            this.setVelocityX(direction * this.dashSpeed);
-        }
-    }
-
     private handleJump(): void {
         const onGround = this.body?.blocked.down;
         const jumpJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up);
@@ -213,8 +196,12 @@ export class Player extends Entity {
     }
 
     private performJump(): void {
-        this.setVelocityY(this.baseJumpForce);
-        this.anims.play('jump', true);
+        const speed = this.baseJumpForce * (this.isAttacking ? this.attackSpeed : 1);
+        this.setVelocityY(speed);
+
+        if(!this.isAttacking) {
+            this.anims.play('jump', true);
+        }
     }
 
     private handleMovement(onGround: boolean): void {
@@ -226,26 +213,28 @@ export class Player extends Entity {
             this.stopMovement(onGround);
         }
 
-        if (!onGround) {
+        if (!onGround && !this.isAttacking) {
             this.anims.play('jump', true);
         }
     }
 
     private moveLeft(onGround: boolean): void {
-        this.setVelocityX(-this.stats.speed);
-        this.setFlipX(true);
-        if (onGround) this.anims.play('run', true);
+        const speed = this.stats.speed * (this.isAttacking ? this.attackSpeed : 1);
+        this.setVelocityX(-speed);
+        !this.isAttacking && this.setFlipX(true);
+        if (onGround && !this.isAttacking) this.anims.play('run', true);
     }
 
     private moveRight(onGround: boolean): void {
-        this.setVelocityX(this.stats.speed);
-        this.setFlipX(false);
-        if (onGround) this.anims.play('run', true);
+        const speed = this.stats.speed * (this.isAttacking ? this.attackSpeed : 1);
+        this.setVelocityX(speed);
+        !this.isAttacking && this.setFlipX(false);
+        if (onGround && !this.isAttacking) this.anims.play('run', true);
     }
 
     private stopMovement(onGround: boolean): void {
         this.setVelocityX(0);
-        if (onGround) this.anims.play('idle', true);
+        if (onGround && !this.isAttacking) this.anims.play('idle', true);
     }
 
     update(): void {
@@ -259,13 +248,6 @@ export class Player extends Entity {
 
         if (this.attackKey.isDown && !this.isAttacking) {
             this.attack();
-            return;
-        }
-
-        if (this.isAttacking) {
-            if (!this.isDashing) {
-                this.setVelocityX(0);
-            }
             return;
         }
 
