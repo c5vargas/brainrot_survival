@@ -9,7 +9,7 @@ export interface EnemyConfig extends EntityConfig {
     target: Player;
     detectionRange?: number;
     attackRange?: number;
-    canFly?: boolean; // Añadir esta propiedad
+    canFly?: boolean;
 }
 
 export abstract class Enemy extends Entity {
@@ -133,7 +133,7 @@ export abstract class Enemy extends Entity {
         super.takeDamage(amount);
     }
 
-    protected die(): void {
+    public die(): void {
         if (this.healthBar) {
             this.healthBar.destroy();
         }

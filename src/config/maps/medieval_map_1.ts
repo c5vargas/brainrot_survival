@@ -110,12 +110,8 @@ export const medievalMap1Layout: MapLayout = {
         },
     ],
     spawnPoints: {
-        player: { x: 800, y: 550 },
-        enemies: [
-            { x: 100, y: 550, type: 'skeleton' },
-            { x: 1000, y: 550, type: 'skeleton' },
-            { x: 1500, y: 550, type: 'skeleton' }
-        ]
+        player: { x: 800, y: 550, type: 'player' },
+        enemies: []
     },
     collisionLayers: [
         // Plataforma principal

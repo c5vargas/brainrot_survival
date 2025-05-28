@@ -118,7 +118,7 @@ export abstract class Entity extends Phaser.Physics.Arcade.Sprite {
         });
     }
 
-    protected die(): void {
+    public die(): void {
         this.isDead = true;
         this.setVelocity(0);
         this.setTint(0xff0000);

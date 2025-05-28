@@ -8,9 +8,12 @@ interface MapObject extends Position {
     properties?: Record<string, any>;
 }
 
-interface Platform extends MapObject {
+export interface Platform extends MapObject {
+    x: number;
+    y: number;
     width: number;
     height: number;
+    scale?: number;
 }
 
 interface Background extends MapObject {
@@ -20,8 +23,15 @@ interface Background extends MapObject {
 
 export type EnemyType = 'skeleton' | 'orc' | 'goblin'; // Añade los tipos que necesites
 
-export interface SpawnPoint extends Position {
-    type: EnemyType;
+export interface SpawnPoint {
+    x: number;
+    y: number;
+    type: string;
+}
+
+export interface SpawnPoints {
+    player: SpawnPoint;
+    enemies: SpawnPoint[];
 }
 
 interface CollisionLayer extends Position {
@@ -36,13 +46,10 @@ export interface MapLayout {
     width: number;
     height: number;
     isUnlocked: boolean;
-    buildings: MapObject[];
     platforms: Platform[];
-    backgrounds: Background[];
-    decorations: MapObject[];
-    spawnPoints: {
-        player: Position;
-        enemies: SpawnPoint[];
-    };
-    collisionLayers: CollisionLayer[];
+    spawnPoints: SpawnPoints;
+    backgrounds?: Background[];
+    decorations?: MapObject[];
+    buildings?: MapObject[];
+    collisionLayers?: CollisionLayer[];
 }
