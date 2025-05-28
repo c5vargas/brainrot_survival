@@ -1,18 +1,16 @@
 import { Scene } from 'phaser';
 import { WaveSystem } from '../systems/waves/WaveSystem';
-import { ResponsiveUI } from '../utils/ResponsiveUI';
 
 export class WaveUI {
     private scene: Scene;
     private waveSystem: WaveSystem;
     private waveText: Phaser.GameObjects.Text;
-    private enemiesText: Phaser.GameObjects.Text;
     private uiContainer: Phaser.GameObjects.Container;
 
     constructor(scene: Scene, waveSystem: WaveSystem) {
         this.scene = scene;
         this.waveSystem = waveSystem;
-        this.uiContainer = ResponsiveUI.createResponsiveContainer(scene);
+        this.uiContainer = this.scene.add.container(0, 0);
         this.createUI();
         this.setupCallbacks();
         this.setupResizeListener();
@@ -30,30 +28,16 @@ export class WaveUI {
             fontFamily: 'Arial, sans-serif'
         }).setScrollFactor(0).setShadow(2, 2, '#000000', 2, true, true);
 
-        // Texto para mostrar los enemigos restantes
-        this.enemiesText = this.scene.add.text(padding, padding + 50, 'Enemigos: 0', {
-            fontSize: '28px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 3,
-            fontFamily: 'Arial, sans-serif'
-        }).setScrollFactor(0).setShadow(2, 2, '#000000', 2, true, true);
 
-        this.uiContainer.add([this.waveText, this.enemiesText]);
+        this.uiContainer.add([this.waveText]);
     }
 
     private setupCallbacks(): void {
         // Cuando comienza una oleada
         this.waveSystem.setOnWaveStarted((waveNumber, totalEnemies) => {
             this.waveText.setText(`Oleada: ${waveNumber}/${this.waveSystem.getTotalWaves()}`);
-            this.enemiesText.setText(`Enemigos: ${totalEnemies}`);
             
             this.showWaveStartMessage(waveNumber);
-        });
-
-        // Cuando se derrota a un enemigo
-        this.waveSystem.setOnEnemyDefeated(() => {
-            this.enemiesText.setText(`Enemigos: ${this.waveSystem.getEnemiesRemaining()}`);
         });
 
         // Cuando se completa una oleada
@@ -81,14 +65,11 @@ export class WaveUI {
         
         // Actualizar posición de los textos informativos
         this.waveText.setPosition(padding, padding);
-        this.enemiesText.setPosition(padding, padding + this.waveText.height + 10);
         
         // Actualizar tamaño de fuente según la resolución
         const waveSize = camera.width >= 1600 ? '36px' : '32px';
-        const enemiesSize = camera.width >= 1600 ? '32px' : '28px';
         
         this.waveText.setFontSize(waveSize);
-        this.enemiesText.setFontSize(enemiesSize);
     }
 
     private showWaveStartMessage(waveNumber: number): void {
@@ -168,7 +149,7 @@ export class WaveUI {
         const victoryText = this.scene.add.text(
             camera.centerX,
             camera.centerY,
-            '¡Has Sobrevivido a Todas las Oleadas!',
+            '¡Has Sobrevivido!',
             {
                 fontSize: '64px',
                 color: '#ffff00',
