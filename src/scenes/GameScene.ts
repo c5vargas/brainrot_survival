@@ -5,6 +5,7 @@ import { MapLayout } from '../types/MapTypes';
 import { medievalMap1Layout } from '../config/maps/medieval_map_1';
 import { WaveSystem, WaveSystemConfig } from '../systems/waves/WaveSystem';
 import { CollisionSystem } from '../systems/CollisionSystem';
+import { WaveUI } from '../ui/WaveUI';
 
 export class GameScene extends Scene {
     private player!: Player;
@@ -12,8 +13,6 @@ export class GameScene extends Scene {
     private mapLoader!: MapLoader;
     private waveSystem!: WaveSystem;
     private collisionSystem!: CollisionSystem;
-    private waveText!: Phaser.GameObjects.Text;
-    private enemiesText!: Phaser.GameObjects.Text;
 
     public getMapLoader(): MapLoader {
         return this.mapLoader;
@@ -52,8 +51,14 @@ export class GameScene extends Scene {
         this.mapLoader = new MapLoader(this, this.player);
 
         // Configuramos la cámara para que siga al jugador
-        this.cameras.main.startFollow(this.player, true);
-        this.cameras.main.setZoom(1.1);
+        this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+        this.cameras.main.setZoom(1.0);
+        this.cameras.main.centerOn(this.player.x, this.player.y);
+        
+        // Asegurar que los límites de la cámara estén correctamente configurados
+        if (this.currentMap && this.currentMap.width && this.currentMap.height) {
+            this.cameras.main.setBounds(0, 0, this.currentMap.width, this.currentMap.height);
+        }
 
         if (this.currentMap) {
             this.mapLoader.loadMap(this.currentMap);
@@ -124,136 +129,12 @@ export class GameScene extends Scene {
             this.collisionSystem.addEnemy(enemy);
         });
 
-        // Crear textos informativos para la UI
-        this.createWaveUI();
-
-        // Configurar callbacks para eventos del sistema de oleadas
-        this.setupWaveCallbacks();
+        // Crear la UI de las oleadas
+        new WaveUI(this, this.waveSystem);
 
         // Iniciar las oleadas después de un retraso inicial
         this.time.delayedCall(2000, () => {
             this.waveSystem.startWaves();
-        });
-    }
-
-    private createWaveUI(): void {
-        // Texto para mostrar la oleada actual
-        this.waveText = this.add.text(16, 16, 'Oleada: 0/0', {
-            fontSize: '32px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4
-        }).setScrollFactor(0);
-
-        // Texto para mostrar los enemigos restantes
-        this.enemiesText = this.add.text(16, 56, 'Enemigos: 0', {
-            fontSize: '24px',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4
-        }).setScrollFactor(0);
-    }
-
-    private setupWaveCallbacks(): void {
-        // Cuando comienza una oleada
-        this.waveSystem.setOnWaveStarted((waveNumber, totalEnemies) => {
-            this.waveText.setText(`Oleada: ${waveNumber}/${this.waveSystem.getTotalWaves()}`);
-            this.enemiesText.setText(`Enemigos: ${totalEnemies}`);
-            
-            // Mostrar mensaje de inicio de oleada
-            const waveStartText = this.add.text(
-                this.cameras.main.centerX,
-                this.cameras.main.centerY - 50,
-                `¡Oleada ${waveNumber} Iniciada!`,
-                {
-                    fontSize: '48px',
-                    color: '#ff0000',
-                    stroke: '#000000',
-                    strokeThickness: 6
-                }
-            )
-            .setOrigin(0.5)
-            .setScrollFactor(0)
-            .setDepth(100);
-            
-            // Hacer que el texto desaparezca después de 2 segundos
-            this.tweens.add({
-                targets: waveStartText,
-                alpha: 0,
-                duration: 1000,
-                delay: 1000,
-                onComplete: () => {
-                    waveStartText.destroy();
-                }
-            });
-        });
-
-        // Cuando se derrota a un enemigo
-        this.waveSystem.setOnEnemyDefeated(() => {
-            this.enemiesText.setText(`Enemigos: ${this.waveSystem.getEnemiesRemaining()}`);
-        });
-
-        // Cuando se completa una oleada
-        this.waveSystem.setOnWaveCompleted((waveNumber) => {
-            // Mostrar mensaje de oleada completada
-            const waveCompleteText = this.add.text(
-                this.cameras.main.centerX,
-                this.cameras.main.centerY,
-                '¡Oleada Completada!',
-                {
-                    fontSize: '48px',
-                    color: '#00ff00',
-                    stroke: '#000000',
-                    strokeThickness: 6
-                }
-            )
-            .setOrigin(0.5)
-            .setScrollFactor(0)
-            .setDepth(100);
-            
-            // Hacer que el texto desaparezca después de 3 segundos
-            this.tweens.add({
-                targets: waveCompleteText,
-                alpha: 0,
-                duration: 1000,
-                delay: 2000,
-                onComplete: () => {
-                    waveCompleteText.destroy();
-                }
-            });
-        });
-
-        // Cuando se completan todas las oleadas
-        this.waveSystem.setOnAllWavesCompleted(() => {
-            // Mostrar mensaje de victoria
-            const victoryText = this.add.text(
-                this.cameras.main.centerX,
-                this.cameras.main.centerY,
-                '¡Has Sobrevivido a Todas las Oleadas!',
-                {
-                    fontSize: '48px',
-                    color: '#ffff00',
-                    stroke: '#000000',
-                    strokeThickness: 6
-                }
-            )
-            .setOrigin(0.5)
-            .setScrollFactor(0)
-            .setDepth(100);
-            
-            // Hacer que el texto parpadee
-            this.tweens.add({
-                targets: victoryText,
-                alpha: 0.5,
-                duration: 500,
-                yoyo: true,
-                repeat: -1
-            });
-            
-            // Opcional: volver al menú principal después de un tiempo
-            this.time.delayedCall(10000, () => {
-                this.scene.start('MainMenuScene');
-            });
         });
     }
 

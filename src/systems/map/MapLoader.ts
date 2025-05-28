@@ -59,7 +59,7 @@ export class MapLoader {
             this.scene.physics.add.collider(this.player, platform);
         });
 
-        this.loadEnemies(layout)
+        this.loadEnemies(layout);
     }
 
     private loadEnemies(mapLayout: MapLayout): void {

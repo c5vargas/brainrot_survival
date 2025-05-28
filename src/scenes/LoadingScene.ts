@@ -39,7 +39,7 @@ export class LoadingScene extends Scene {
             progressBar.destroy();
             progressBox.destroy();
             loadingText.destroy();
-            this.scene.start('GameScene');
+            this.scene.start('MainMenuScene');
         });
     }
 

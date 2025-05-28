@@ -1,26 +1,36 @@
-import { Types } from 'phaser';
+import Phaser from 'phaser';
 import { BootScene } from '../scenes/BootScene';
 import { LoadingScene } from '../scenes/LoadingScene';
 import { MainMenuScene } from '../scenes/MainMenuScene';
 import { GameScene } from '../scenes/GameScene';
 
-export const gameConfig: Types.Core.GameConfig = {
+export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 1920,  // Resolución Full HD
-  height: 1080, // Resolución Full HD
+  parent: 'game-container',
+  backgroundColor: '#000000',
+  pixelArt: true,
+  antialias: false,
+  roundPixels: true,
   physics: {
     default: 'arcade',
     arcade: {
       gravity: { x: 0, y: 0 },
-      debug: import.meta.env.NODE_ENV === 'development'
+      debug: false
     }
   },
-  pixelArt: true,
+  dom: {
+    createContainer: true
+  },
   scale: {
-    mode: Phaser.Scale.EXPAND,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    fullscreenTarget: 'game-container',
-    expandParent: true,
+    mode: Phaser.Scale.ENVELOP,
+    autoCenter: Phaser.Scale.ENVELOP,
+    width: 1920,
+    height: 1080,
+    autoRound: true,
+    min: {
+      width: 1280,
+      height: 720
+    },
     max: {
       width: 1920,
       height: 1080

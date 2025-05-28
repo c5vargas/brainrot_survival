@@ -4,7 +4,7 @@ export const medievalMap1Layout: MapLayout = {
     id: 'medieval_map_1',
     name: 'Reino Medieval',
     width: 3200,  // Ancho total del mapa
-    height: 1600, // Alto total del mapa
+    height: 1080, // Alto total del mapa ajustado a la resolución
     isUnlocked: true,
     backgrounds: [
         {
@@ -26,7 +26,7 @@ export const medievalMap1Layout: MapLayout = {
             x: 0,
             y: 650,
             width: 3200,
-            height: 1600,
+            height: 430,
         }
     ],
     buildings: [

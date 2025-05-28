@@ -22,7 +22,7 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame
         if (game.current === null)
         {
 
-            game.current = StartGame("game-container");
+            game.current = StartGame();
 
             if (typeof ref === 'function')
             {
