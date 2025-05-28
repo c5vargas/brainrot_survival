@@ -261,7 +261,7 @@ export class Player extends Entity {
         });
     }
 
-    protected die(): void {
+    public die(): void {
         
         if (this.healthBar) {
             this.healthBar.destroy();
@@ -294,5 +294,22 @@ export class Player extends Entity {
 
     public getIsInvulnerable(): boolean {
         return this.isInvulnerable;
+    }
+
+    // Métodos para el sistema de mejoras
+    public getStats(): PlayerStats {
+        return { ...this.stats };
+    }
+
+    public updateStats(newStats: PlayerStats): void {
+        this.stats = { ...newStats };
+    }
+
+    public getAttackCooldown(): number {
+        return this.attackCooldown;
+    }
+
+    public setAttackCooldown(cooldown: number): void {
+        this.attackCooldown = cooldown;
     }
 }

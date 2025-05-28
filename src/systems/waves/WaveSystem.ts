@@ -94,14 +94,13 @@ export class WaveSystem {
         if (!this.isWaveActive) return;
 
         this.enemiesRemaining--;
-        
         if (this.onEnemyDefeated) {
             this.onEnemyDefeated();
         }
 
         if (this.enemiesRemaining <= 0) {
             this.isWaveActive = false;
-            
+
             if (this.onWaveCompleted) {
                 this.onWaveCompleted(this.currentWave);
             }

@@ -181,8 +181,4 @@ export class MainMenuScene extends Scene {
     private handleRightButtonClick(button: string): void {
         console.log(`Clicked right button: ${button}`);
     }
-
-    private startGame(): void {
-        this.scene.start('GameScene');
-    }
 }

@@ -6,6 +6,7 @@ import { medievalMap1Layout } from '../config/maps/medieval_map_1';
 import { WaveSystem, WaveSystemConfig } from '../systems/waves/WaveSystem';
 import { CollisionSystem } from '../systems/CollisionSystem';
 import { WaveUI } from '../ui/WaveUI';
+import { UpgradeSystem } from '../systems/upgrades/UpgradeSystem';
 
 export class GameScene extends Scene {
     private player!: Player;
@@ -13,6 +14,7 @@ export class GameScene extends Scene {
     private mapLoader!: MapLoader;
     private waveSystem!: WaveSystem;
     private collisionSystem!: CollisionSystem;
+    private upgradeSystem!: UpgradeSystem;
 
     public getMapLoader(): MapLoader {
         return this.mapLoader;
@@ -32,8 +34,7 @@ export class GameScene extends Scene {
         }
     }
 
-    create(): void {
-        // Verificamos que el teclado esté disponible
+    create(): void {        
         if (!this.input.keyboard) {
             console.error('Keyboard not available');
             return;
@@ -73,11 +74,55 @@ export class GameScene extends Scene {
             this.collisionSystem.addEnemy(enemy);
         });
 
+        // Inicializar el sistema de mejoras
+        this.upgradeSystem = new UpgradeSystem(this, this.player);
+
         // Inicializar el sistema de oleadas
         this.setupWaveSystem();
+
+        // Botón para probar el sistema de mejoras
+        this.createTestButton();        
+    }
+
+    private createTestButton(): void {
+        // Crear un botón para probar el sistema de mejoras
+        const button = this.add.rectangle(100, 200, 150, 50, 0x4444ff);
+        button.setScrollFactor(0);
+        button.setInteractive({ useHandCursor: true });
+        
+        const buttonText = this.add.text(100, 200, 'Mostrar Mejoras', {
+            fontSize: '16px',
+            color: '#ffffff'
+        });
+        buttonText.setScrollFactor(0);
+        buttonText.setOrigin(0.5);
+        
+        button.on('pointerdown', () => {
+            this.upgradeSystem.showUpgradeOptions();
+        });
+        
+        // Botón para matar a todos los enemigos y forzar fin de oleada
+        const killButton = this.add.rectangle(100, 260, 150, 50, 0xff4444);
+        killButton.setScrollFactor(0);
+        killButton.setInteractive({ useHandCursor: true });
+        
+        const killButtonText = this.add.text(100, 260, 'Matar Enemigos', {
+            fontSize: '16px',
+            color: '#ffffff'
+        });
+        killButtonText.setScrollFactor(0);
+        killButtonText.setOrigin(0.5);
+        
+        killButton.on('pointerdown', () => {
+            const enemies = this.mapLoader.getEnemyManager().getEnemies();
+            enemies.forEach(enemy => {
+                enemy.takeDamage(1000);
+            });
+        });
     }
 
     private setupWaveSystem(): void {
+        
         // Configuración de ejemplo para las oleadas
         const waveSystemConfig: WaveSystemConfig = {
             waves: [
@@ -117,22 +162,24 @@ export class GameScene extends Scene {
             timeBetweenWaves: 5000 // 5 segundos entre oleadas
         };
 
-        // Crear el sistema de oleadas
         this.waveSystem = new WaveSystem(
             this,
             this.mapLoader.getEnemyManager(),
             waveSystemConfig
         );
         
-        // Configurar el WaveSystem para notificar cuando se genera un enemigo
-        this.waveSystem.setOnEnemySpawned(enemy => {
+        this.waveSystem.setOnEnemySpawned((enemy) => {
             this.collisionSystem.addEnemy(enemy);
         });
 
-        // Crear la UI de las oleadas
+        this.waveSystem.setOnWaveCompleted((_waveNumber) => {
+            this.time.delayedCall(1000, () => {
+                this.upgradeSystem.showUpgradeOptions();
+            });
+        });
+
         new WaveUI(this, this.waveSystem);
 
-        // Iniciar las oleadas después de un retraso inicial
         this.time.delayedCall(2000, () => {
             this.waveSystem.startWaves();
         });

@@ -3,6 +3,7 @@ import { BootScene } from '../scenes/BootScene';
 import { LoadingScene } from '../scenes/LoadingScene';
 import { MainMenuScene } from '../scenes/MainMenuScene';
 import { GameScene } from '../scenes/GameScene';
+import { UpgradeModalScene } from '../scenes/UpgradeModalScene';
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -36,5 +37,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
       height: 1080
     }
   },
-  scene: [BootScene, LoadingScene, MainMenuScene, GameScene]
+  scene: [BootScene, LoadingScene, MainMenuScene, GameScene, UpgradeModalScene]
 };

@@ -34,15 +34,21 @@ export class WaveUI {
 
     private setupCallbacks(): void {
         // Cuando comienza una oleada
-        this.waveSystem.setOnWaveStarted((waveNumber, totalEnemies) => {
+        this.waveSystem.setOnWaveStarted((waveNumber, _totalEnemies) => {
             this.waveText.setText(`Oleada: ${waveNumber}/${this.waveSystem.getTotalWaves()}`);
             
             this.showWaveStartMessage(waveNumber);
         });
 
-        // Cuando se completa una oleada
-        this.waveSystem.setOnWaveCompleted((waveNumber) => {
-            this.showWaveCompletedMessage();
+        // Cuando se completa una oleada - No vamos a registrar este callback aquí
+        // para evitar sobrescribir el callback registrado en GameScene
+        
+        // En lugar de eso, observaremos el evento de enemyDefeated para mostrar el mensaje
+        this.waveSystem.setOnEnemyDefeated(() => {
+            // Si quedan 0 enemigos, mostrar el mensaje de oleada completada
+            if (this.waveSystem.getEnemiesRemaining() === 0) {
+                this.showWaveCompletedMessage();
+            }
         });
 
         // Cuando se completan todas las oleadas
@@ -107,7 +113,7 @@ export class WaveUI {
         });
     }
 
-    private showWaveCompletedMessage(): void {
+    public showWaveCompletedMessage(): void {
         const camera = this.scene.cameras.main;
         
         // Mostrar mensaje de oleada completada

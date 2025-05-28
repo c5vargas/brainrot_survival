@@ -26,6 +26,7 @@ export class LoadingScene extends Scene {
         this.loadCharacters();
         this.loadEnvironment();
         this.loadUI();
+        this.loadUpgrades();
         this.loadAudio();
 
         // Progress bar events
@@ -88,6 +89,15 @@ export class LoadingScene extends Scene {
         this.load.image('health-bar-bg', 'assets/ui/health-bar-bg.png');
         this.load.image('health-bar-fill', 'assets/ui/health-bar-fill.png');
         this.load.image('health-bar-border', 'assets/ui/health-bar-border.png');
+    }
+
+    private loadUpgrades(): void {
+        // Usar iconos existentes como placeholders para las mejoras
+        // Esto evita errores de carga de archivos que no existen
+        this.load.image('attack_speed_icon', 'assets/environment/decorations/Environment_Sword_01.png');
+        this.load.image('movement_speed_icon', 'assets/environment/decorations/Environment_Wooden_Barrel.png');
+        this.load.image('damage_icon', 'assets/environment/decorations/Environment_Quest_Board.png');
+        this.load.image('critical_chance_icon', 'assets/environment/decorations/Environment_Banner_01.png');
     }
 
     private loadAudio(): void {
